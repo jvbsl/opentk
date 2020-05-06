@@ -1,0 +1,33 @@
+name: OpenTK build
+
+on:
+  push:
+    branches:
+      - feature/githubactions
+jobs:
+  build:
+    env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        DOTNET_ROLL_FORWARD: "Major"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix: 
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.100
+    - name: Install OpenGL software renderer
+      run: powershell ./install-opengl.ps1
+      if: matrix.os == 'windows-latest'
+    - name: Restore
+      run: dotnet tool restore
+    - name: Build
+      run: dotnet fake run build.fsx -t RunCITests
+    - name: Uninstall OpenGL software renderer
+      run: powershell ./install-opengl.ps1 uninstall
+      if: matrix.os == 'windows-latest'
