@@ -577,6 +577,8 @@ namespace OpenToolkit.Windowing.Desktop
                 {
                     InitializeGlBindings();
                 }
+
+                GLFW.MakeContextCurrent(null);
             }
 
             RegisterWindowCallbacks();
