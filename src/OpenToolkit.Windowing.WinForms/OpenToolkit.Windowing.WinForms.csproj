@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <RootNamespace>OpenToolkit.Windowing.WinForms</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OpenToolkit.Core\OpenToolkit.Core.csproj" />
+    <ProjectReference Include="..\OpenToolkit.Mathematics\OpenToolkit.Mathematics.csproj" />
+    <ProjectReference Include="..\OpenToolkit.Windowing.Common\OpenToolkit.Windowing.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Condition="'$(TargetFramework)' == 'net472'" Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0-preview.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+  <Import Project="..\..\props\common.props" />
+  <Import Project="..\..\props\nuget-common.props" />
+  <Import Project="..\..\props\stylecop.props" />
+</Project>

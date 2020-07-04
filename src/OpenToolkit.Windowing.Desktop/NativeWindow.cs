@@ -466,6 +466,8 @@ namespace OpenToolkit.Windowing.Desktop
             }
         }
 
+        public GLFWGraphicsContext Context { get; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="NativeWindow"/> class.
         /// </summary>
@@ -566,6 +568,8 @@ namespace OpenToolkit.Windowing.Desktop
             {
                 WindowPtr = GLFW.CreateWindow(settings.Size.X, settings.Size.Y, _title, null, null);
             }
+
+            Context = new GLFWGraphicsContext(WindowPtr);
 
             Exists = true;
 
