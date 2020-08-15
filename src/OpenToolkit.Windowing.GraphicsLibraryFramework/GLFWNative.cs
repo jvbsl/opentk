@@ -22,27 +22,7 @@ namespace OpenToolkit.Windowing.GraphicsLibraryFramework
                     return IntPtr.Zero;
                 }
 
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    return NativeLibrary.Load("libglfw.so.3", assembly, path);
-                }
-
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    return NativeLibrary.Load("libglfw.3.dylib", assembly, path);
-                }
-
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    if (IntPtr.Size == 8)
-                    {
-                        return NativeLibrary.Load("glfw3-x64.dll", assembly, path);
-                    }
-
-                    return NativeLibrary.Load("glfw3-x86.dll", assembly, path);
-                }
-
-                return IntPtr.Zero;
+                return LibraryLoadHelper.LoadLibrary("glfw", new Version(3, 3), assembly, path);
             });
         }
 #endif
@@ -246,6 +226,9 @@ namespace OpenToolkit.Windowing.GraphicsLibraryFramework
         public static extern int glfwGetInputMode(Window* window, StickyAttributes mode);
 
         [DllImport(LibraryName)]
+        public static extern int glfwGetInputMode(Window* window, LockKeyModAttribute mode);
+
+        [DllImport(LibraryName)]
         public static extern void glfwRestoreWindow(Window* window);
 
         [DllImport(LibraryName)]
@@ -334,6 +317,9 @@ namespace OpenToolkit.Windowing.GraphicsLibraryFramework
 
         [DllImport(LibraryName)]
         public static extern void glfwSetInputMode(Window* window, StickyAttributes mode, int value);
+
+        [DllImport(LibraryName)]
+        public static extern void glfwSetInputMode(Window* window, LockKeyModAttribute mode, int value);
 
         [DllImport(LibraryName)]
         public static extern IntPtr glfwSetJoystickCallback(IntPtr callback);

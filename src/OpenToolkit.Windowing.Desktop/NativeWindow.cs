@@ -48,7 +48,7 @@ namespace OpenToolkit.Windowing.Desktop
         /// <inheritdoc />
         public KeyboardState LastKeyboardState { get; private set; }
 
-        private JoystickState[] _joystickStates = new JoystickState[16];
+        private readonly JoystickState[] _joystickStates = new JoystickState[16];
 
         /// <inheritdoc/>
         public JoystickState[] JoystickStates { get => _joystickStates; }
@@ -175,7 +175,7 @@ namespace OpenToolkit.Windowing.Desktop
         /// <inheritdoc />
         public Version APIVersion { get; }
 
-        private Monitor _currentMonitor;
+        private readonly Monitor _currentMonitor;
 
         /// <summary>
         /// Gets or sets the current <see cref="Monitor"/>.
@@ -589,6 +589,9 @@ namespace OpenToolkit.Windowing.Desktop
                 GLFW.MakeContextCurrent(null);
             }
 
+            // Enables the caps lock modifier to be detected and updated
+            GLFW.SetInputMode(WindowPtr, LockKeyModAttribute.LockKeyMods, true);
+
             RegisterWindowCallbacks();
 
             IsFocused = settings.StartFocused;
@@ -738,6 +741,7 @@ namespace OpenToolkit.Windowing.Desktop
                         OnKeyDown(args);
                     }
                 };
+
                 GLFW.SetKeyCallback(WindowPtr, _keyCallback);
 
                 _cursorEnterCallback = (window, entered) =>
@@ -824,6 +828,20 @@ namespace OpenToolkit.Windowing.Desktop
                     OnJoystickConnected(new JoystickEventArgs(joy, eventCode == ConnectedState.Connected));
                 };
                 GLFW.SetJoystickCallback(_joystickCallback);
+
+                // Check for Joysticks that are connected at application launch
+                for (int i = 0; i < JoystickStates.Length; i++)
+                {
+                    if (GLFW.JoystickPresent(i))
+                    {
+                        GLFW.GetJoystickHatsRaw(i, out var hatCount);
+                        GLFW.GetJoystickAxesRaw(i, out var axisCount);
+                        GLFW.GetJoystickButtonsRaw(i, out var buttonCount);
+                        var name = GLFW.GetJoystickName(i);
+
+                        JoystickStates[i] = new JoystickState(hatCount, axisCount, buttonCount, i, name);
+                    }
+                }
 
                 _monitorCallback = (monitor, eventCode) =>
                 {
@@ -1484,6 +1502,16 @@ namespace OpenToolkit.Windowing.Desktop
             if (modifiers.HasFlag(GlfwKeyModifiers.Super))
             {
                 value |= KeyModifiers.Command;
+            }
+
+            if (modifiers.HasFlag(GlfwKeyModifiers.CapsLock))
+            {
+                value |= KeyModifiers.CapsLock;
+            }
+
+            if (modifiers.HasFlag(GlfwKeyModifiers.NumLock))
+            {
+                value |= KeyModifiers.NumLock;
             }
 
             return value;
