@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using OpenTK.Core;
+using OpenTK.Core.Native;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Common.Input;
@@ -22,7 +23,7 @@ namespace OpenTK.Windowing.Desktop
     /// <summary>
     /// Instances of this class implement the <see cref="INativeWindow"/> interface on the current platform.
     /// </summary>
-    public class NativeWindow : INativeWindow
+    public class NativeWindow : INativeWindow, IGLFWGraphicsContext, IGLFWGraphicsContextProvider
     {
         /// <summary>
         /// Gets the native <see cref="Window"/> pointer for use with <see cref="GLFW"/> API.
@@ -564,11 +565,11 @@ namespace OpenTK.Windowing.Desktop
                 GLFW.WindowHint(WindowHintInt.GreenBits, modePtr->GreenBits);
                 GLFW.WindowHint(WindowHintInt.BlueBits, modePtr->BlueBits);
                 GLFW.WindowHint(WindowHintInt.RefreshRate, modePtr->RefreshRate);
-                WindowPtr = GLFW.CreateWindow(modePtr->Width, modePtr->Height, _title, monitor, null);
+                WindowPtr = GLFW.CreateWindow(modePtr->Width, modePtr->Height, _title, monitor, settings.SharedContextProvider?.NativeContext);
             }
             else
             {
-                WindowPtr = GLFW.CreateWindow(settings.Size.X, settings.Size.Y, _title, null, null);
+                WindowPtr = GLFW.CreateWindow(settings.Size.X, settings.Size.Y, _title, null, settings.SharedContextProvider?.NativeContext);
             }
 
             Exists = true;
@@ -881,6 +882,18 @@ namespace OpenTK.Windowing.Desktop
             unsafe
             {
                 GLFW.MakeContextCurrent(WindowPtr);
+            }
+        }
+
+        public unsafe void MakeCurrent(IGLFWGraphicsContextProvider contextProvider)
+        {
+            if (contextProvider == null)
+            {
+                GLFW.MakeContextCurrent(null);
+            }
+            else
+            {
+                GLFW.MakeContextCurrent(contextProvider.NativeContext.Pointer);
             }
         }
 
@@ -1550,5 +1563,13 @@ namespace OpenTK.Windowing.Desktop
                     throw new ArgumentOutOfRangeException(nameof(shape), shape, null);
             }
         }
+
+        /// <summary>
+        /// Gets the native context of the current window.
+        /// </summary>
+        /// <remarks>
+        /// In GLFW the context is inseparably tied to the window and is therefore used instead of the context directly.
+        /// </remarks>
+        public unsafe NativePointer<Window> NativeContext => WindowPtr;
     }
 }

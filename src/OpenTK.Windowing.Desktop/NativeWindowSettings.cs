@@ -157,5 +157,10 @@ namespace OpenTK.Windowing.Desktop
         /// Gets or sets a value indicating whether the window should start fullscreen.
         /// </summary>
         public bool IsFullscreen { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a provider used for context sharing.
+        /// </summary>
+        public IGLFWGraphicsContextProvider SharedContextProvider { get; set; }
     }
 }
